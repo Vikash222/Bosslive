@@ -1,0 +1,52 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { Bell, LogOut, Plus, Search, Shield, Trophy, Users } from 'lucide-react'
+
+export default function DashboardPage() {
+  const router = useRouter()
+  const [profile, setProfile] = useState<{ full_name: string; avatar_url: string | null; playing_role: string | null } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.replace('/login'); return }
+      const { data } = await supabase.from('profiles').select('full_name, avatar_url, playing_role').eq('id', user.id).maybeSingle()
+      setProfile(data)
+      setLoading(false)
+    }
+    load()
+  }, [router])
+
+  async function logout() {
+    await supabase.auth.signOut()
+    router.replace('/login')
+  }
+
+  if (loading) return <div className="loading-screen">Loading Bosslive…</div>
+
+  return (
+    <main className="dashboard-shell">
+      <header className="topbar">
+        <div className="brand"><Trophy size={22} /> <span>Bosslive</span></div>
+        <div className="top-actions"><button className="icon-btn"><Search size={19} /></button><button className="icon-btn"><Bell size={19} /></button><button className="avatar">{profile?.full_name?.charAt(0) || 'P'}</button></div>
+      </header>
+      <section className="dashboard-content">
+        <div className="welcome-row">
+          <div><span className="eyebrow">CRICKET HUB</span><h1>Hey, {profile?.full_name?.split(' ')[0] || 'Player'} 👋</h1><p>Your cricket journey starts here.</p></div>
+          <button className="primary-btn compact"><Plus size={18} /> Create team</button>
+        </div>
+        <div className="dashboard-grid">
+          <article className="dash-card hero-card"><span className="card-kicker">MY TEAM</span><h2>No team yet</h2><p>Create your own team or find an existing team and send a join request.</p><div className="card-actions"><button className="primary-btn compact"><Plus size={17} /> Create team</button><button className="secondary-btn">Find a team</button></div></article>
+          <article className="dash-card"><div className="card-icon"><Users size={20} /></div><span className="card-kicker">MY PROFILE</span><h3>{profile?.full_name || 'Complete profile'}</h3><p>{profile?.playing_role || 'Add your playing role and cricket details.'}</p><button className="text-btn" onClick={() => router.push('/profile')}>Complete profile →</button></article>
+          <article className="dash-card"><div className="card-icon"><Shield size={20} /></div><span className="card-kicker">MATCHES</span><h3>No matches yet</h3><p>Your upcoming and completed matches will appear here.</p></article>
+        </div>
+        <section className="stats-strip"><div><strong>0</strong><span>Matches</span></div><div><strong>0</strong><span>Runs</span></div><div><strong>0</strong><span>Wickets</span></div><div><strong>0</strong><span>Teams</span></div></section>
+        <button className="logout-btn" onClick={logout}><LogOut size={17} /> Sign out</button>
+      </section>
+    </main>
+  )
+}
