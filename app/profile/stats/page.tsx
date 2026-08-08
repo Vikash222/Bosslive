@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Award, BarChart3, CircleUserRound, Trophy } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-type Stats={matches:number;innings:number;runs:number;balls_faced:number;strike_rate:number;batting_average:number;highest_score:number;fifties:number;hundreds:number;fours:number;sixes:number;wickets:number;economy:number}
+type Stats={matches:number;innings:number;outs:number;runs:number;balls_faced:number;strike_rate:number;batting_average:number;highest_score:number;fifties:number;hundreds:number;fours:number;sixes:number;wickets:number;economy:number}
 type Profile={full_name:string|null;avatar_url:string|null;playing_role:string|null;batting_style:string|null;bowling_style:string|null}
 type Match={id:string;match_date:string;result_text:string|null}
 
